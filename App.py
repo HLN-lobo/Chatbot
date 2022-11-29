@@ -1,19 +1,134 @@
-#1. Importar bibliotecas necessárias
-import pywhatkit
-import keyboard
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
 import time
-from datetime import datetime
+from webdriver_manager.chrome import ChromeDriverManager
+import tkinter
+from tkinter import ttk
 
-#2. Definir contatos das msg
-contatos = ['+5511991295442','+5511999302690']
+'''
+-----------------------------------------------------------
+Interfaace de Usuário
+-----------------------------------------------------------
+'''
 
-#3. Definir intevalo de envio
-while len(contatos) >=1:
-    #enviar mensagens
-    pywhatkit.sendwhatmsg(contatos[0],'Hello World!',datetime.now().hour,datetime.now().
-    minute + 2)
-    del contatos[0]
-    time.sleep(60)
-    keyboard.press_and_release('ctrl + w')
 
-#4. Testar
+'''
+Function criar inputs para inserir nome dos contatos
+'''
+
+def contact_select():
+    quantidadeContatos = int(Quantidade_contatos_spinbox.get())
+
+    contato_nome = tkinter.LabelFrame(frame, text="Nome dos Contatos")
+    contato_nome.grid(row= 1, column= 0)
+    
+    i = 0
+    while i < quantidadeContatos: 
+        nomes = tkinter.Label(contato_nome, text= f"Contato {i+1}")
+        nomes_input = ttk.Entry(contato_nome)
+        nomes.grid(row=i, column=0, pady= 10, padx= 10)
+        nomes_input.grid(row=i, column=1, pady= 10, padx= 10)
+
+        i+=1
+    
+    print(quantidadeContatos)
+
+'''
+Function que inicia o bot
+'''
+def botStarted():
+    mensagem_text.get()
+    print(mensagem_text)
+    print("Start destruction!")
+
+
+window = tkinter.Tk()
+window.title("Bot de Mensagens para Whatsapp")
+
+frame = tkinter.Frame(window)
+frame.pack()
+
+'''
+    Criando imput para definir a quantidade de contatos que receberam a mensagem
+    Botao inicia a função que gera os inputs que irão receber os nomes dos contatos
+'''
+
+contato_frame = tkinter.LabelFrame(frame, text="Contatos")
+contato_frame.grid(row= 0, column= 0, padx=20, pady=20)
+
+Quantidade_contatos = tkinter.Label(contato_frame, text="Quantidade de contatos")
+Quantidade_contatos_spinbox = ttk.Spinbox(contato_frame, from_= 1, to= 15)
+Quantidade_contatos.grid(row=0, column=0)
+Quantidade_contatos_spinbox.grid(row=1, column=0)
+
+Quantidade_contatos_button = tkinter.Button(contato_frame, text="Confirmar", command= contact_select)
+Quantidade_contatos_button.grid(row=2, column=0, sticky="news", padx=10, pady=10)
+
+for widget in contato_frame.winfo_children():
+    widget.grid_configure(padx=10, pady=5)
+
+#Criando imput para a mensagem
+mensagem_frame = tkinter.LabelFrame(frame, text="Mensagem")
+mensagem_frame.grid(row= 0, column= 1, padx=25, pady=25)
+
+mensagem = tkinter.Label(mensagem_frame, text="Insira sua mensagem")
+mensagem_text = tkinter.Text(mensagem_frame, height=10, width=20)
+mensagem.grid(row= 0, column= 1)
+mensagem_text.grid(row=1, column=1)
+
+
+
+button = tkinter.Button(frame, text="Enviar mensagem", command= botStarted)
+button.grid(row=2, column=0, sticky="news", padx=20, pady=20)
+
+window.mainloop()
+
+#----------------------------------------------------------
+
+contatos = ["Chatbot", "NADA"]
+mensagem = [
+            """
+                ⚠️⚠️Oi pessoal! Só passando pra avisar que o treinamento de AWS para a turma de Desenvolvimento de Sistemas do período da manhã vai ter início no dia 05/12/2022. 
+                Lembrando que o treinamento prepara os alunos para a realização da prova de certificação AWS Cloud Practitioner.
+                ✅ Contamos com a presença de todos!
+                Acessem o link para mais informações: 
+                ✅ https://aws.amazon.com/pt/certification/certified-cloud-practitioner/?trk=9cd9d99c-3597-4b9b-b044-5b9213216efc&sc_channel=ps&s_kwcid=AL!4422!3!544685366846!e!!g!!aws%20cloud%20practitioner&ef_id=CjwKCAiApvebBhAvEiwAe7mHSEAB9PQMcpqS2fmT_hIDfP41rsHPVdRlVr1Htjrevqm6NP7jzLQUZBoCl7MQAvD_BwE:G:s&s_kwcid=AL!4422!3!544685366846!e!!g!!aws%20cloud%20practitioner
+            """
+            ]
+midia = "C:/Users/SENAI/Pictures/Saved Pictures/aws.png"
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+driver.get('https://web.whatsapp.com/')
+time.sleep(30)
+
+def cade_contato(contato):
+    achar_contato = driver.find_element(By.XPATH, '//div[contains(@class, "copyable-text")]')
+    time.sleep(2)
+    achar_contato.click()
+    achar_contato.send_keys(contato)
+    achar_contato.send_keys(Keys.ENTER)
+    
+def enviar_mensagem(mensagens):
+    for mensagem in mensagens:
+        enviar_mensagem = driver.find_element(By.XPATH, '//p[contains(@class, "selectable-text copyable-text")]')
+        enviar_mensagem.click()
+        time.sleep(3)
+        enviar_mensagem.send_keys(mensagem)
+        enviar_mensagem.send_keys(Keys.ENTER)
+        time.sleep(2)
+
+def enviar_midia(midia):
+    enviar_midia = driver.find_element(By.CSS_SELECTOR,"span[data-icon='clip']").click()
+    attach = driver.find_element(By.CSS_SELECTOR,"input[type='file']")
+    attach.send_keys(midia)
+    time.sleep(3)
+    send = driver.find_element(By.CSS_SELECTOR,"span[data-icon='send']")
+    send.click()
+
+for contato in contatos:
+    cade_contato(contato)
+    enviar_mensagem(mensagem)
+    enviar_midia(midia) 
+    time.sleep(1)
