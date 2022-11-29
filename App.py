@@ -1,134 +1,112 @@
 from selenium import webdriver
-from selenium.webdriver.common.by import By
+from time import sleep as slp
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
-import time
 from webdriver_manager.chrome import ChromeDriverManager
-import tkinter
-from tkinter import ttk
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from tkinter import *
+from webbrowser import get
+from tkinter import filedialog
+from tkinter import messagebox
+import time
+import tkinter.font as tkFont
 
-'''
------------------------------------------------------------
-Interfaace de Usuário
------------------------------------------------------------
-'''
+contatos = []
+msg = []
+imagens = []
 
 
-'''
-Function criar inputs para inserir nome dos contatos
-'''
+def PegarContato():
+    contatos.append(inputContato.get())
+    print(contatos)
 
-def contact_select():
-    quantidadeContatos = int(Quantidade_contatos_spinbox.get())
-
-    contato_nome = tkinter.LabelFrame(frame, text="Nome dos Contatos")
-    contato_nome.grid(row= 1, column= 0)
+def ApagarContato():
+    contatos.clear()
+    print(contatos)
     
-    i = 0
-    while i < quantidadeContatos: 
-        nomes = tkinter.Label(contato_nome, text= f"Contato {i+1}")
-        nomes_input = ttk.Entry(contato_nome)
-        nomes.grid(row=i, column=0, pady= 10, padx= 10)
-        nomes_input.grid(row=i, column=1, pady= 10, padx= 10)
+def PegarMsg():
+    msg.append(inputMsg.get('1.0', 'end-1c'))
+    print(msg)
 
-        i+=1
+def ApagarMsg():
+    contatos.clear()
+    print(msg)
     
-    print(quantidadeContatos)
+def PegarImg():
+    enviando_img = filedialog.askopenfilename(initialdir='/', title="Select a File", filetypes=(("Image files", ["*jpg*", "*png*", "*jpeg*"]), ("all files", "*-*")))
+    imagens.append(enviando_img)
+    print(imagens)
 
-'''
-Function que inicia o bot
-'''
-def botStarted():
-    mensagem_text.get()
-    print(mensagem_text)
-    print("Start destruction!")
+def ApagarImg():
+    imagens.clear()
+    print(imagens)
 
+def Enviar():
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.get("https://web.whatsapp.com/")
+    WebDriverWait(driver, timeout=9000000).until(
+        EC.presence_of_element_located((By.ID, 'pane-side')))
+    slp(1)
 
-window = tkinter.Tk()
-window.title("Bot de Mensagens para Whatsapp")
+    def SearchContatos(contatos):
+        caixa_pesquisa = driver.find_element(By.CLASS_NAME, "_13NKt")
+        caixa_pesquisa.send_keys(contatos, Keys.ENTER)
+        slp(3)
 
-frame = tkinter.Frame(window)
-frame.pack()
+    def SendMsg(msg):
+        escrevendo_msg = driver.find_element(By.CLASS_NAME, "p3_M1")
+        escrevendo_msg.send_keys(msg)
+        slp(1.5)
+        escrevendo_msg.send_keys("", Keys.ENTER)
+        slp(1.5)
 
-'''
-    Criando imput para definir a quantidade de contatos que receberam a mensagem
-    Botao inicia a função que gera os inputs que irão receber os nomes dos contatos
-'''
-
-contato_frame = tkinter.LabelFrame(frame, text="Contatos")
-contato_frame.grid(row= 0, column= 0, padx=20, pady=20)
-
-Quantidade_contatos = tkinter.Label(contato_frame, text="Quantidade de contatos")
-Quantidade_contatos_spinbox = ttk.Spinbox(contato_frame, from_= 1, to= 15)
-Quantidade_contatos.grid(row=0, column=0)
-Quantidade_contatos_spinbox.grid(row=1, column=0)
-
-Quantidade_contatos_button = tkinter.Button(contato_frame, text="Confirmar", command= contact_select)
-Quantidade_contatos_button.grid(row=2, column=0, sticky="news", padx=10, pady=10)
-
-for widget in contato_frame.winfo_children():
-    widget.grid_configure(padx=10, pady=5)
-
-#Criando imput para a mensagem
-mensagem_frame = tkinter.LabelFrame(frame, text="Mensagem")
-mensagem_frame.grid(row= 0, column= 1, padx=25, pady=25)
-
-mensagem = tkinter.Label(mensagem_frame, text="Insira sua mensagem")
-mensagem_text = tkinter.Text(mensagem_frame, height=10, width=20)
-mensagem.grid(row= 0, column= 1)
-mensagem_text.grid(row=1, column=1)
-
-
-
-button = tkinter.Button(frame, text="Enviar mensagem", command= botStarted)
-button.grid(row=2, column=0, sticky="news", padx=20, pady=20)
-
-window.mainloop()
-
-#----------------------------------------------------------
-
-contatos = ["Chatbot", "NADA"]
-mensagem = [
-            """
-                ⚠️⚠️Oi pessoal! Só passando pra avisar que o treinamento de AWS para a turma de Desenvolvimento de Sistemas do período da manhã vai ter início no dia 05/12/2022. 
-                Lembrando que o treinamento prepara os alunos para a realização da prova de certificação AWS Cloud Practitioner.
-                ✅ Contamos com a presença de todos!
-                Acessem o link para mais informações: 
-                ✅ https://aws.amazon.com/pt/certification/certified-cloud-practitioner/?trk=9cd9d99c-3597-4b9b-b044-5b9213216efc&sc_channel=ps&s_kwcid=AL!4422!3!544685366846!e!!g!!aws%20cloud%20practitioner&ef_id=CjwKCAiApvebBhAvEiwAe7mHSEAB9PQMcpqS2fmT_hIDfP41rsHPVdRlVr1Htjrevqm6NP7jzLQUZBoCl7MQAvD_BwE:G:s&s_kwcid=AL!4422!3!544685366846!e!!g!!aws%20cloud%20practitioner
-            """
-            ]
-midia = "C:/Users/SENAI/Pictures/Saved Pictures/aws.png"
-
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-driver.get('https://web.whatsapp.com/')
-time.sleep(30)
-
-def cade_contato(contato):
-    achar_contato = driver.find_element(By.XPATH, '//div[contains(@class, "copyable-text")]')
-    time.sleep(2)
-    achar_contato.click()
-    achar_contato.send_keys(contato)
-    achar_contato.send_keys(Keys.ENTER)
-    
-def enviar_mensagem(mensagens):
-    for mensagem in mensagens:
-        enviar_mensagem = driver.find_element(By.XPATH, '//p[contains(@class, "selectable-text copyable-text")]')
-        enviar_mensagem.click()
-        time.sleep(3)
-        enviar_mensagem.send_keys(mensagem)
-        enviar_mensagem.send_keys(Keys.ENTER)
+    def SendImg(imagens):
+       
+        driver.find_element(By.CSS_SELECTOR, "span[data-icon='clip']").click()     
+        attach = driver.find_element(By.CSS_SELECTOR, "input[type='file']")
+        attach.send_keys(imagens)
         time.sleep(2)
+        send = driver.find_element(By.XPATH, '//div[contains(@class, "_165_h _2HL9j")]')
+        send.click()    
+        
+        
+    for contato in contatos:
+        SearchContatos(contato)
+        SendMsg(msg)
+        SendImg(imagens)
 
-def enviar_midia(midia):
-    enviar_midia = driver.find_element(By.CSS_SELECTOR,"span[data-icon='clip']").click()
-    attach = driver.find_element(By.CSS_SELECTOR,"input[type='file']")
-    attach.send_keys(midia)
-    time.sleep(3)
-    send = driver.find_element(By.CSS_SELECTOR,"span[data-icon='send']")
-    send.click()
 
-for contato in contatos:
-    cade_contato(contato)
-    enviar_mensagem(mensagem)
-    enviar_midia(midia) 
-    time.sleep(1)
+janela = Tk()
+
+janela.title("ChatBOT")
+janela.geometry("800x600")
+
+textlabel = Label(
+    janela, text="Digite o nome ou o número de um contato ou grupo").place(x=50, y=100)
+inputContato = Entry(janela)
+inputContato.place(x=50, y=200)
+buttonContato = Button(janela, text="10 e faixa", command=PegarContato)
+buttonContato.place(x=100, y=300)
+
+removerContato = Button(janela, text="Apagar contatos", command=ApagarContato)
+removerContato.place(x=100, y=320)
+
+inputMsg = Text(janela)
+inputMsg.place(x=100, y=350, width=300, height=450)
+buttonMsg = Button(janela, text="Adicionar a mensagem", command=PegarMsg)
+buttonMsg.place(x=100, y=400)
+
+removerMsg = Button(janela, text="Apagar Mensagem", command=ApagarMsg)
+removerMsg.place(x=100, y=420)
+
+buttonImg = Button(janela, text="adionar imagem", command=PegarImg)
+buttonImg.place(x=100 , y=  450)
+buttonEnviar = Button(janela, text="Enviar", command=Enviar)
+buttonEnviar.place(x=100, y=480)
+
+removerImg = Button(janela, text="Apagar Imagens", command=ApagarImg)
+removerImg.place(x=100, y=500)
+
+janela.mainloop()
