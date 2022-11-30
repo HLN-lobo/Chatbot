@@ -91,8 +91,9 @@ janela = Tk()
 janela.title("ChatBot")
 janela.configure(background='gray')
 janela.resizable(True, True)
-janela.geometry("1080x860")
+janela.geometry("1080x720")
 janela.maxsize(width=1080, height=860)
+janela.resizable(False, False)
 
 fontStyle = Font(family="Poplar Std", size=12, weight="normal", underline=0, overstrike=0)
 
